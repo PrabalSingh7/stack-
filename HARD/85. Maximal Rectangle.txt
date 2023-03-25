@@ -1,0 +1,151 @@
+85. Maximal Rectangle
+Hard
+8.4K
+134
+Companies
+Given a rows x cols binary matrix filled with 0's and 1's, find the largest rectangle containing only 1's and return its area.
+
+ 
+
+Example 1:
+
+
+Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+Output: 6
+Explanation: The maximal rectangle is shown in the above picture.
+Example 2:
+
+Input: matrix = [["0"]]
+Output: 0
+Example 3:
+
+Input: matrix = [["1"]]
+Output: 1
+ 
+
+Constraints:
+
+rows == matrix.length
+cols == matrix[i].length
+1 <= row, cols <= 200
+matrix[i][j] is '0' or '1'.
+Accepted
+339.1K
+Submissions
+758.6K
+Acceptance Rate
+44.7%
+
+
+
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        int n = heights.size();
+        int res = -1;
+
+        vector<int> ngl (n, -1);
+        vector<int> ngr (n, n);
+
+        stack<pair<int,int>> st;
+
+        //ngl
+        for(int i=0; i<n; i++)  {
+            // cout<<i<<"\n";
+            int val = heights[i];
+            if(st.size()==0)    {
+                ngl[i] = -1;
+            }
+            else {
+                if(st.top().first<val)    {
+                    ngl[i] = st.top().second;
+                }
+                else if(st.top().first >= val)   {
+                    while(st.top().first >= val && !st.empty() ) {
+                        // cout<<st.top().first<<"\n";
+                        st.pop();
+                        if(st.size()==0)
+                            break;
+                    }
+                    if(st.size()>0 && st.top().first < val)    {
+                        ngl[i] = st.top().second;
+                    }
+                    else {
+                        ngl[i] = -1;
+                    }
+                }
+            }
+            
+            st.push({val,i});
+        }
+
+        while(st.size()!=0) {   
+            st.pop();
+            if(st.size()==0)
+                break;    
+        }
+
+
+
+        //ngr
+        for(int i=n-1; i>=0; i--)  {
+            int val = heights[i];
+            if(st.size()==0)    {
+                ngr[i] = n;
+            }
+            else {
+                if(st.top().first<val)    {
+                    ngr[i] = st.top().second;
+                }
+                else if(st.top().first >= val)   {
+                    while(st.top().first >= val && !st.empty() ) {
+                        st.pop();
+                        if(st.size()==0)
+                            break;
+                    }
+                    if(st.size()>0 && st.top().first < val)    {
+                        ngr[i] = st.top().second;
+                    }
+                    else {
+                        ngr[i] = n;
+                    }
+                }
+            }
+            
+            st.push({val,i});
+        }
+        
+        for(int i=0; i<n; i++)  {
+            int currWidth = ngr[i] - ngl[i] - 1;
+            int currHeight = heights[i];
+            int currArea = currWidth * currHeight;
+            res = max(currArea,res);
+        }
+
+        return res;
+    }
+
+
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        int n = matrix.size();
+        int m = matrix[0].size();
+        int result = -1;
+
+        vector<int> vec (m,0);
+
+        for(int i=0; i<n; i++)  {
+            int curr = 0;
+            for(int j=0; j<m; j++)  {
+                int v = matrix[i][j] - '0';
+                if(v==0)
+                    vec[j] = 0;
+                else 
+                    vec[j] += v;
+            }
+            curr = largestRectangleArea(vec); 
+            result = max(curr,result);
+        }
+
+        return result;
+    }
+};
